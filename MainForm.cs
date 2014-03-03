@@ -265,15 +265,17 @@ namespace WMIViewer
 
         private void queryMenu_Opening(object sender, CancelEventArgs e)
         {
-            var source = (ListView)queryMenu.SourceControl;
-
-            if (source == classList)
+            if (queryMenu.SourceControl == scopeTree)
             {
-                queryMenu.Enabled = source.SelectedItems.Count == 1;
+                queryMenuItem.Enabled = false;
             }
-            else if (source == memberList)
+            else if (queryMenu.SourceControl == classList)
             {
-                copyNameMenuItem.Enabled = source.SelectedItems.Count == 1;
+                queryMenu.Enabled = ((ListView)queryMenu.SourceControl).SelectedItems.Count == 1;
+            }
+            else if (queryMenu.SourceControl == memberList)
+            {
+                copyNameMenuItem.Enabled = ((ListView)queryMenu.SourceControl).SelectedItems.Count == 1;
             }
         }
 
@@ -281,13 +283,19 @@ namespace WMIViewer
         {
             queryMenu.Enabled = true;
             copyNameMenuItem.Enabled = true;
-            queryMenu.Enabled = true;
+            queryMenuItem.Enabled = true;
         }
 
         private void copyNameMenuItem_Click(object sender, EventArgs e)
         {
-            var source = (ListView)queryMenu.SourceControl;
-            Clipboard.SetText(source.SelectedItems[0].Text);
+            if (queryMenu.SourceControl is TreeView)
+            {
+                Clipboard.SetText(((TreeView)queryMenu.SourceControl).SelectedNode.FullPath);
+            }
+            else if (queryMenu.SourceControl is ListView)
+            {
+                Clipboard.SetText(((ListView)queryMenu.SourceControl).SelectedItems[0].Text);
+            }
         }
 
         private void queryMenuItem_Click(object sender, EventArgs e)

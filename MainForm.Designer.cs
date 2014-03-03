@@ -45,10 +45,10 @@
             this.scopeLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.scopeTree = new System.Windows.Forms.TreeView();
-            this.classList = new System.Windows.Forms.ListView();
             this.queryMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.copyNameMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.queryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.classList = new System.Windows.Forms.ListView();
             this.memberList = new System.Windows.Forms.ListView();
             this.resultTable = new System.Windows.Forms.ListView();
             this.queryBox = new System.Windows.Forms.TextBox();
@@ -70,10 +70,10 @@
             verticalSplitter.Panel1.SuspendLayout();
             verticalSplitter.Panel2.SuspendLayout();
             verticalSplitter.SuspendLayout();
+            this.queryMenu.SuspendLayout();
             horizontalSplitter.Panel1.SuspendLayout();
             horizontalSplitter.Panel2.SuspendLayout();
             horizontalSplitter.SuspendLayout();
-            this.queryMenu.SuspendLayout();
             queryPage.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -170,6 +170,7 @@
             // 
             // scopeTree
             // 
+            this.scopeTree.ContextMenuStrip = this.queryMenu;
             this.scopeTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scopeTree.HideSelection = false;
             this.scopeTree.Location = new System.Drawing.Point(0, 0);
@@ -184,6 +185,30 @@
             this.scopeTree.TabIndex = 0;
             this.scopeTree.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.scopeTree_BeforeExpand);
             this.scopeTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.scopeTree_AfterSelect);
+            // 
+            // queryMenu
+            // 
+            this.queryMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyNameMenuItem,
+            this.queryMenuItem});
+            this.queryMenu.Name = "queryMenu";
+            this.queryMenu.Size = new System.Drawing.Size(143, 48);
+            this.queryMenu.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.queryMenu_Closed);
+            this.queryMenu.Opening += new System.ComponentModel.CancelEventHandler(this.queryMenu_Opening);
+            // 
+            // copyNameMenuItem
+            // 
+            this.copyNameMenuItem.Name = "copyNameMenuItem";
+            this.copyNameMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.copyNameMenuItem.Text = "&Copy Name";
+            this.copyNameMenuItem.Click += new System.EventHandler(this.copyNameMenuItem_Click);
+            // 
+            // queryMenuItem
+            // 
+            this.queryMenuItem.Name = "queryMenuItem";
+            this.queryMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.queryMenuItem.Text = "&Query";
+            this.queryMenuItem.Click += new System.EventHandler(this.queryMenuItem_Click);
             // 
             // horizontalSplitter
             // 
@@ -225,30 +250,6 @@
             // classNameColumn
             // 
             classNameColumn.Text = "Name";
-            // 
-            // queryMenu
-            // 
-            this.queryMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.copyNameMenuItem,
-            this.queryMenuItem});
-            this.queryMenu.Name = "queryMenu";
-            this.queryMenu.Size = new System.Drawing.Size(143, 48);
-            this.queryMenu.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.queryMenu_Closed);
-            this.queryMenu.Opening += new System.ComponentModel.CancelEventHandler(this.queryMenu_Opening);
-            // 
-            // copyNameMenuItem
-            // 
-            this.copyNameMenuItem.Name = "copyNameMenuItem";
-            this.copyNameMenuItem.Size = new System.Drawing.Size(142, 22);
-            this.copyNameMenuItem.Text = "&Copy Name";
-            this.copyNameMenuItem.Click += new System.EventHandler(this.copyNameMenuItem_Click);
-            // 
-            // queryMenuItem
-            // 
-            this.queryMenuItem.Name = "queryMenuItem";
-            this.queryMenuItem.Size = new System.Drawing.Size(142, 22);
-            this.queryMenuItem.Text = "&Query";
-            this.queryMenuItem.Click += new System.EventHandler(this.queryMenuItem_Click);
             // 
             // memberList
             // 
@@ -334,10 +335,10 @@
             verticalSplitter.Panel1.ResumeLayout(false);
             verticalSplitter.Panel2.ResumeLayout(false);
             verticalSplitter.ResumeLayout(false);
+            this.queryMenu.ResumeLayout(false);
             horizontalSplitter.Panel1.ResumeLayout(false);
             horizontalSplitter.Panel2.ResumeLayout(false);
             horizontalSplitter.ResumeLayout(false);
-            this.queryMenu.ResumeLayout(false);
             queryPage.ResumeLayout(false);
             queryPage.PerformLayout();
             this.ResumeLayout(false);
