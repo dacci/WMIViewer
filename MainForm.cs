@@ -101,7 +101,7 @@ namespace WMIViewer
                 if (cache.scanned)
                 {
                     foreach (var name in cache.classes.Keys)
-                        classList.Items.Add(name);
+                        classList.Items.Add(name).Tag = cache.classes[name];
                 }
                 else
                 {
