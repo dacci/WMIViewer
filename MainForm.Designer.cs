@@ -53,6 +53,7 @@
             this.memberList = new System.Windows.Forms.ListView();
             this.queryBox = new System.Windows.Forms.TextBox();
             this.resultTable = new System.Windows.Forms.ListView();
+            this.cancelWorker = new System.ComponentModel.BackgroundWorker();
             toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             statusStrip = new System.Windows.Forms.StatusStrip();
             verticalSplitter = new System.Windows.Forms.SplitContainer();
@@ -336,6 +337,10 @@
             this.resultTable.UseCompatibleStateImageBehavior = false;
             this.resultTable.View = System.Windows.Forms.View.Details;
             // 
+            // cancelWorker
+            // 
+            this.cancelWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.cancelWorker_DoWork);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -343,8 +348,10 @@
             this.ClientSize = new System.Drawing.Size(752, 487);
             this.Controls.Add(toolStripContainer);
             this.DoubleBuffered = true;
+            this.KeyPreview = true;
             this.Name = "MainForm";
             this.Text = "WMI Viewer";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             toolStripContainer.BottomToolStripPanel.ResumeLayout(false);
             toolStripContainer.BottomToolStripPanel.PerformLayout();
             toolStripContainer.ContentPanel.ResumeLayout(false);
@@ -381,6 +388,7 @@
         private System.Windows.Forms.ToolStripMenuItem copyNameMenuItem;
         private System.Windows.Forms.ToolStripMenuItem queryMenuItem;
         private System.Windows.Forms.TabControl tabControl;
+        private System.ComponentModel.BackgroundWorker cancelWorker;
 
     }
 }

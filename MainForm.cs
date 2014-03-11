@@ -30,8 +30,14 @@ namespace WMIViewer
                 return data.ToString();
         }
 
+        private readonly ManagementOperationObserver queryObserver;
+
         public MainForm()
         {
+            queryObserver = new ManagementOperationObserver();
+            queryObserver.ObjectReady += queryObserver_ObjectReady;
+            queryObserver.Completed += queryObserver_Completed;
+
             InitializeComponent();
 
             var rect = Screen.FromControl(this).WorkingArea;
@@ -42,6 +48,71 @@ namespace WMIViewer
 
             classList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             memberList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
+
+        private void BeginQuery()
+        {
+            Cursor = Cursors.WaitCursor;
+
+            scopeTree.Enabled = false;
+            classList.Enabled = false;
+            memberList.Enabled = false;
+            queryBox.Enabled = false;
+
+            resultTable.BeginUpdate();
+            resultTable.Enabled = false;
+            resultTable.Clear();
+
+            messageLabel.Text = "";
+        }
+
+        private void EndQuery()
+        {
+            scopeTree.Enabled = true;
+            classList.Enabled = true;
+            memberList.Enabled = true;
+            queryBox.Enabled = true;
+
+            resultTable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+            resultTable.Enabled = true;
+            resultTable.EndUpdate();
+
+            Cursor = Cursors.Default;
+        }
+
+        private void AddResult(ManagementBaseObject result)
+        {
+            lock (this)
+            {
+                if (resultTable.Columns.Count == 0)
+                {
+                    foreach (var property in result.Properties)
+                        resultTable.Columns.Add(property.Name);
+                }
+
+                ListViewItem item = null;
+
+                foreach (var property in result.Properties)
+                {
+                    if (item == null)
+                        item = new ListViewItem(ToString(property.Value));
+                    else
+                        item.SubItems.Add(ToString(property.Value));
+                }
+
+                if (item != null)
+                    resultTable.Items.Add(item);
+            }
+        }
+
+        private void queryObserver_ObjectReady(object sender, ObjectReadyEventArgs e)
+        {
+            Invoke((MethodInvoker)(() => AddResult(e.NewObject)));
+        }
+
+        private void queryObserver_Completed(object sender, CompletedEventArgs e)
+        {
+            Invoke((MethodInvoker)(() => EndQuery()));
         }
 
         private void scopeTree_BeforeExpand(object sender, TreeViewCancelEventArgs e)
@@ -199,61 +270,14 @@ namespace WMIViewer
 
             try
             {
-                Cursor = Cursors.WaitCursor;
-                messageLabel.Text = "";
+                BeginQuery();
 
-                queryBox.Enabled = false;
-
-                resultTable.BeginUpdate();
-                resultTable.Clear();
-                resultTable.Columns.Clear();
-
-                var first = true;
-                var searcher = new ManagementObjectSearcher(scopeLabel.Text, queryBox.Text);
-
-                foreach (var result in searcher.Get())
-                {
-                    if (first)
-                    {
-                        first = false;
-
-                        foreach (var property in result.Properties)
-                            resultTable.Columns.Add(property.Name);
-                    }
-
-                    var item = new ListViewItem();
-                    var firstProperty = true;
-                    foreach (var property in result.Properties)
-                    {
-                        if (firstProperty)
-                        {
-                            firstProperty = false;
-                            item.Text = ToString(property.Value);
-                        }
-                        else
-                        {
-                            item.SubItems.Add(ToString(property.Value));
-                        }
-                    }
-
-                    resultTable.Items.Add(item);
-                }
-
-                resultTable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+                new ManagementObjectSearcher(scopeLabel.Text, queryBox.Text).Get(queryObserver);
             }
-            catch (ManagementException ex)
+            catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
-            }
-            finally
-            {
-                resultTable.EndUpdate();
-
-                queryBox.Enabled = true;
-                queryBox.SelectAll();
-                queryBox.Focus();
-
-                Cursor = Cursors.Default;
+                EndQuery();
             }
         }
 
@@ -314,6 +338,17 @@ namespace WMIViewer
             queryBox.Text = string.Format("SELECT {0} FROM {1}", string.Join(", ", properties.ToArray()), classList.SelectedItems[0].Text);
             queryBox.Focus();
             queryBox_KeyDown(sender, new KeyEventArgs(Keys.Return));
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                cancelWorker.RunWorkerAsync();
+        }
+
+        private void cancelWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            queryObserver.Cancel();
         }
     }
 }
